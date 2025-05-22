@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Clear separation of concerns
+Proper error handling
+Comprehensive documentation
+Thorough testing
+Type safety
+Modular design

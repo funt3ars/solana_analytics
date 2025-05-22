@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Iterative development - one component at a time
+Test driven development - follow best practices
+Include comprehensive tests - unit and integration tests
+Add error handling - Emphasize robust error handling
+Performance considerations - optimization notes
+Documentation - inline documentation and README updates

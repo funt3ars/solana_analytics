@@ -1,0 +1,18 @@
+[database]
+url = "postgresql://solana_user:your_password@localhost:5432/solana_analytics"
+max_connections = 10
+
+[rpc]
+endpoints = [
+    "https://api.mainnet-beta.solana.com",
+    "https://rpc.helius.xyz/?api-key=YOUR_KEY"
+]
+rate_limit = 10
+timeout_seconds = 30
+retry_attempts = 5
+
+[redis]
+url = "redis://localhost:6379"
+
+[logging]
+level = "info"
