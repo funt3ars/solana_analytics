@@ -1,0 +1,2 @@
+[dependencies]
+solana_sdk = "1.17.0" 

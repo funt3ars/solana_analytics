@@ -1,95 +1,62 @@
-use solana_rpc_client::{SolanaRpcClient, RpcConfig, EndpointConfig};
+use solana_rpc_client::prelude::*;
 use solana_sdk::pubkey::Pubkey;
-use solana_sdk::signature::Keypair;
-use solana_sdk::signer::Signer;
-use url::Url;
+use solana_sdk::signature::Signature;
+use solana_sdk::transaction::Transaction;
 use tracing_subscriber;
-use std::time::Duration;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize logging
     tracing_subscriber::fmt::init();
 
-    // Configure the client with caching enabled
+    // Configure the client with multiple endpoints
     let config = RpcConfig {
-        endpoints: vec![
-            EndpointConfig {
-                url: Url::parse("https://api.mainnet-beta.solana.com")?,
-                weight: 1,
-                requests_per_second: Some(100),
-            },
-        ],
-        pool_size: 10,
-        keep_alive: Duration::from_secs(30),
-        max_retries: 5,
-        base_delay: Duration::from_millis(100),
-        max_delay: Duration::from_secs(10),
-        requests_per_second: 100,
-        cache_ttl: Duration::from_secs(60),
-        timeout: Duration::from_secs(30),
+        endpoint: EndpointConfig {
+            url: "https://api.mainnet-beta.solana.com".to_string(),
+            requests_per_second: 100,
+        },
+        retry_attempts: 5,
+        retry_delay_ms: 1000,
     };
 
     // Create the client
-    let client = SolanaRpcClient::new(config)?;
+    let client = Client::new(config)?;
 
-    // Generate some test pubkeys
-    let pubkeys: Vec<Pubkey> = (0..5)
-        .map(|_| Keypair::new().pubkey())
-        .collect();
-
-    println!("Testing batch account fetching...");
-    let start = std::time::Instant::now();
-    
-    // Fetch multiple accounts in a single request
-    let accounts = client.get_multiple_accounts(&pubkeys).await?;
-    println!("Fetched {} accounts in {:?}", accounts.len(), start.elapsed());
-
-    // Test caching behavior
-    println!("\nTesting caching behavior...");
-    
-    // First request (cache miss)
-    let start = std::time::Instant::now();
-    let slot1 = client.get_slot().await?;
-    println!("First request took: {:?}", start.elapsed());
-    
-    // Second request (should be cached)
-    let start = std::time::Instant::now();
-    let slot2 = client.get_slot().await?;
-    println!("Second request took: {:?}", start.elapsed());
-    
-    assert_eq!(slot1, slot2, "Cached values should match");
-
-    // Test error handling
-    println!("\nTesting error handling...");
-    
-    // Test with invalid pubkey
-    let invalid_pubkey = Pubkey::new_unique();
-    match client.get_account_info(&invalid_pubkey, None).await {
-        Ok(None) => println!("Account not found (expected)"),
-        Ok(Some(_)) => println!("Unexpected: Account found"),
-        Err(e) => println!("Error: {}", e),
+    // Get cluster nodes
+    let nodes = client.rpc_client().get_cluster_nodes()?;
+    println!("Cluster Nodes:");
+    for node in nodes {
+        println!("  Node: {}", node.pubkey);
+        println!("    Gossip: {}", node.gossip);
+        println!("    Tpu: {}", node.tpu);
+        println!("    RPC: {}", node.rpc);
+        println!("    Version: {}", node.version);
     }
 
-    // Test timeout handling
-    println!("\nTesting timeout handling...");
-    
-    let config = RpcConfig {
-        endpoints: vec![
-            EndpointConfig {
-                url: Url::parse("https://api.mainnet-beta.solana.com")?,
-                weight: 1,
-                requests_per_second: Some(100),
-            },
-        ],
-        timeout: Duration::from_millis(1), // Very short timeout
-        ..Default::default()
-    };
+    // Get recent blockhash
+    let (recent_blockhash, _) = client.rpc_client().get_latest_blockhash()?;
+    println!("\nRecent Blockhash: {}", recent_blockhash);
 
-    let client = SolanaRpcClient::new(config)?;
-    match client.get_slot().await {
-        Ok(_) => println!("Unexpected: Request succeeded"),
-        Err(e) => println!("Expected: Request timed out: {}", e),
+    // Get transaction
+    let signature = Signature::default(); // Replace with actual signature
+    match client.rpc_client().get_transaction(&signature, solana_transaction_status::UiTransactionEncoding::Base64)? {
+        Some(tx) => {
+            println!("\nTransaction Details:");
+            println!("  Slot: {}", tx.slot);
+            println!("  Block Time: {}", tx.block_time);
+            println!("  Status: {:?}", tx.transaction.meta);
+        }
+        None => println!("Transaction not found"),
+    }
+
+    // Get health stats
+    let health_stats = client.get_health_stats().await;
+    println!("\nEndpoint Health Stats:");
+    for stat in health_stats {
+        println!("Endpoint: {}", stat.url);
+        println!("  Status: {}", stat.status);
+        println!("  Latency: {:?}", stat.latency);
+        println!("  Last Check: {}", stat.last_check);
     }
 
     Ok(())

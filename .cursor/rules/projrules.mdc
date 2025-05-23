@@ -3,9 +3,26 @@ description:
 globs: 
 alwaysApply: true
 ---
-Iterative development - one component at a time
-Test driven development - follow best practices
-Include comprehensive tests - unit and integration tests
-Add error handling - Emphasize robust error handling
-Performance considerations - optimization notes
-Documentation - inline documentation and README updates
+- Iterative development - one component at a time
+- Test driven development - follow best practices
+- Include comprehensive tests - unit and integration tests
+- Add error handling - Emphasize robust error handling
+- Performance considerations - optimization notes
+- Documentation - inline documentation and README updates
+- Do not make implementations based on assumptions, always search for documentantion
+- Complete research phase before implementation
+- Document all findings and decisions
+- Implement one component at a time
+- Write tests before implementation
+- Include comprehensive testing
+- Add robust error handling
+- Consider performance implications
+- Add proper documentation
+- Keep track of progress
+- Update document regularly
+- Monitor resource usage
+- Track technical debt
+- Regular security audits
+- Performance benchmarking
+- Code quality checks
+- Documentation updates 

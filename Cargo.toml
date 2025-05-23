@@ -2,44 +2,45 @@
 name = "solana-rpc-client"
 version = "0.1.0"
 edition = "2021"
-description = "A robust Solana RPC client with connection pooling, retry logic, and health monitoring"
+description = "A high-performance, feature-rich Solana RPC client with analytics capabilities"
 license = "MIT"
 
 [dependencies]
-solana-client = "=1.17.0"
-solana-sdk = "=1.17.0"
-reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
-tokio = { version = "1.28", features = ["full"] }
+solana-client = { version = "1.18", optional = true }
+solana-sdk = { version = "1.18", optional = true }
+tokio = { version = "1.36", features = ["full"] }
+reqwest = { version = "0.11", features = ["json"], optional = true }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+tokio-postgres = { version = "0.7", features = ["with-uuid-1", "with-chrono-0_4"] }
+deadpool-postgres = { version = "0.14.1", features = ["rt_tokio_1", "serde"] }
+url = { version = "2.5", features = ["serde"] }
+thiserror = "1.0"
+validator = { version = "0.16", features = ["derive"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "time"] }
+tracing-appender = "0.2"
+metrics = "0.21"
+async-trait = "0.1"
+futures = "0.3"
+uuid = { version = "1.7", features = ["v4", "serde"] }
 tokio-retry = "0.3"
 governor = "0.6"
 config = "0.13"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-thiserror = "1.0"
-async-trait = "0.1"
-futures = "0.3"
-cached = "0.34"
-wiremock = "0.5"
-mockall = "0.11"
-anyhow = "1.0"
-chrono = "0.4"
-url = "2.4"
-metrics = "0.21"
-metrics-exporter-prometheus = "0.12"
-nonempty = "0.8"
-tokio-postgres = { version = "0.7", features = ["with-uuid-1", "with-chrono-0_4", "with-serde_json-1"] }
-deadpool = "0.9"
-deadpool-postgres = { version = "0.10", features = ["rt_tokio_1"] }
-postgres-types = { version = "0.2", features = ["derive", "with-uuid-1", "with-chrono-0_4", "with-serde_json-1"] }
-uuid = { version = "1.4", features = ["v4", "serde"] }
+
+[features]
+default = ["phase1"]
+phase1 = ["solana-client", "solana-sdk", "reqwest"]
 
 [dev-dependencies]
 tokio-test = "0.4"
+mockall = "0.12"
 wiremock = "0.5"
-mockall = "0.11"
 test-log = "0.2"
+pretty_assertions = "1.4"
+criterion = "0.5"
+tempfile = "3.8"
 
 [[example]]
 name = "basic_usage"

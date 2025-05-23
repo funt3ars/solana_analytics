@@ -1,13 +1,10 @@
 //! Utility functions and types for the Solana analytics system
 
 use chrono::{DateTime, Duration, Utc};
-use solana_sdk::pubkey::Pubkey;
 use std::str::FromStr;
 
-/// Converts a base58 encoded string to a Solana public key
-pub fn pubkey_from_str(s: &str) -> Option<Pubkey> {
-    Pubkey::from_str(s).ok()
-}
+#[cfg(feature = "phase1")]
+use solana_sdk::pubkey::Pubkey;
 
 /// Formats a timestamp as a human-readable string
 pub fn format_timestamp(timestamp: DateTime<Utc>) -> String {
@@ -26,17 +23,39 @@ pub fn format_sol_amount(lamports: i64) -> String {
     format!("{:.9} SOL", lamports as f64 / 1e9)
 }
 
+#[cfg(feature = "phase1")]
+/// Convert a string to a Pubkey
+pub fn pubkey_from_str(s: &str) -> Option<Pubkey> {
+    Pubkey::from_str(s).ok()
+}
+
+#[cfg(feature = "phase1")]
+/// Convert a Pubkey to a string
+pub fn pubkey_to_string(pubkey: &Pubkey) -> String {
+    pubkey.to_string()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    #[cfg(feature = "phase1")]
     #[test]
-    fn test_pubkey_from_str() {
+    fn test_pubkey_conversion() {
         let valid_pubkey = "11111111111111111111111111111111";
-        assert!(pubkey_from_str(valid_pubkey).is_some());
-
         let invalid_pubkey = "invalid";
+
+        assert!(pubkey_from_str(valid_pubkey).is_some());
         assert!(pubkey_from_str(invalid_pubkey).is_none());
+    }
+
+    #[cfg(feature = "phase1")]
+    #[test]
+    fn test_pubkey_to_string() {
+        let pubkey = Pubkey::new_unique();
+        let string = pubkey_to_string(&pubkey);
+        let back_to_pubkey = pubkey_from_str(&string).unwrap();
+        assert_eq!(pubkey, back_to_pubkey);
     }
 
     #[test]
