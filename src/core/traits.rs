@@ -18,7 +18,7 @@ pub trait Config: Send + Sync + Debug {
 }
 
 /// Retry configuration
-#[derive(Debug, Clone, Serialize, Deserialize, Validate)]
+#[derive(Debug, Clone, Serialize, Deserialize, Validate, Default)]
 pub struct RetryConfig {
     /// Maximum number of retry attempts
     pub max_retries: u32,
@@ -103,14 +103,10 @@ pub struct ClientMetrics {
 }
 
 /// Health status for monitoring
-#[derive(Debug, Clone)]
-pub struct HealthStatus {
-    /// Whether the service is healthy
-    pub is_healthy: bool,
-    /// Last check timestamp
-    pub last_check: chrono::DateTime<chrono::Utc>,
-    /// Error message if unhealthy
-    pub error: Option<String>,
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum HealthStatus {
+    Healthy,
+    Unhealthy(Option<String>),
 }
 
 /// Detailed health information
@@ -224,11 +220,7 @@ mod tests {
     async fn test_health_check() {
         let mut mock = MockTestHealthCheck::new();
         mock.expect_check_health()
-            .returning(|| Ok(HealthStatus {
-                is_healthy: true,
-                last_check: chrono::Utc::now(),
-                error: None,
-            }));
+            .returning(|| Ok(HealthStatus::Healthy));
         
         let result = mock.check_health().await;
         assert!(result.is_ok());

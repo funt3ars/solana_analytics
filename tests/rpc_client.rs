@@ -1,4 +1,6 @@
-use solana_rpc_client::rpc::client::{SolanaRpcClient, RpcConfig, RpcError};
+use solana_rpc_client::rpc::client::SolanaRpcClient;
+use solana_rpc_client::rpc::config::RpcConfig;
+use solana_rpc_client::rpc::error::RpcError;
 use solana_rpc_client::rpc::config::EndpointConfig;
 use url::Url;
 
@@ -37,7 +39,7 @@ async fn test_basic_rpc_call() {
     let config = RpcConfig::default();
     let client = SolanaRpcClient::new(config).unwrap();
     // Test a basic RPC call (getSlot)
-    let result = client.client.blocking_read().get_slot();
+    let result = client.rpc_client().blocking_read().get_slot();
     assert!(result.is_ok() || result.is_err()); // Either success or error is valid
 }
 
@@ -48,8 +50,8 @@ async fn test_rate_limiting() {
     let client = SolanaRpcClient::new(config).unwrap();
     // Make two rapid requests
     let start = std::time::Instant::now();
-    let _ = client.client.blocking_read().get_slot();
-    let _ = client.client.blocking_read().get_slot();
+    let _ = client.rpc_client().blocking_read().get_slot();
+    let _ = client.rpc_client().blocking_read().get_slot();
     let duration = start.elapsed();
     // The second request should have been rate limited
     assert!(duration >= std::time::Duration::from_secs(1));

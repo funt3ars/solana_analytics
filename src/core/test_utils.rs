@@ -9,9 +9,6 @@ use solana_sdk::{
     signature::Signature,
     transaction::Transaction,
 };
-
-use chrono::Utc;
-
 /// Initialize test logging
 pub fn init_test_logging() {
     static INIT: Once = Once::new();
@@ -58,11 +55,7 @@ pub fn test_client_metrics() -> ClientMetrics {
 
 /// Create test health status
 pub fn test_health_status() -> HealthStatus {
-    HealthStatus {
-        is_healthy: true,
-        last_check: Utc::now(),
-        error: None,
-    }
+    HealthStatus::Healthy
 }
 
 /// Create test health details
@@ -84,47 +77,8 @@ pub fn test_system_metrics() -> SystemMetrics {
 }
 
 #[cfg(test)]
-mod mock_client {
-    use super::*;
-    use mockall::mock;
-    use crate::core::traits::{Client, Config};
-    use crate::core::error::Result;
-    use async_trait::async_trait;
-
-    mock! {
-        #[derive(Debug)]
-        pub MockClient {}
-        #[async_trait::async_trait]
-        impl Client for MockClient {
-            fn config(&self) -> &dyn Config;
-            async fn is_healthy(&self) -> Result<bool>;
-            fn current_endpoint(&self) -> &str;
-            async fn get_metrics(&self) -> Result<ClientMetrics>;
-        }
-    }
-
-    pub mod helpers {
-        use super::*;
-
-        pub fn create_mock_client() -> MockClient {
-            let mut mock = MockClient::new();
-            mock.expect_config()
-                .returning(|| &Config::default());
-            mock.expect_is_healthy()
-                .returning(|| Ok(true));
-            mock.expect_current_endpoint()
-                .returning(|| "http://localhost:8899");
-            mock.expect_get_metrics()
-                .returning(|| Ok(super::test_client_metrics()));
-            mock
-        }
-    }
-}
-
-#[cfg(test)]
 mod tests {
     use super::*;
-    use mock_client::helpers::*;
 
     #[test]
     fn test_test_utils() {
@@ -150,14 +104,5 @@ mod tests {
     fn test_signature_creation() {
         let signature = test_signature();
         assert_eq!(signature, Signature::default());
-    }
-
-    #[tokio::test]
-    async fn test_mock_client() {
-        let mock = create_mock_client();
-        assert!(mock.is_healthy().await.unwrap());
-        assert_eq!(mock.current_endpoint(), "http://localhost:8899");
-        let metrics = mock.get_metrics().await.unwrap();
-        assert_eq!(metrics.successful_requests, 100);
     }
 } 

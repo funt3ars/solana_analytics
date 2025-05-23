@@ -75,11 +75,7 @@ impl HealthMonitor {
             .unwrap_or(false);
 
         if is_healthy {
-            Ok(HealthStatus {
-                is_healthy: true,
-                last_check: chrono::Utc::now(),
-                error: None,
-            })
+            Ok(HealthStatus::Healthy)
         } else {
             // Try to find a healthy endpoint
             for (idx, stats) in stats.iter().enumerate() {
@@ -88,18 +84,10 @@ impl HealthMonitor {
                     .unwrap_or(false)
                 {
                     *self.current_endpoint.write().await = idx;
-                    return Ok(HealthStatus {
-                        is_healthy: true,
-                        last_check: chrono::Utc::now(),
-                        error: None,
-                    });
+                    return Ok(HealthStatus::Healthy);
                 }
             }
-            Ok(HealthStatus {
-                is_healthy: false,
-                last_check: chrono::Utc::now(),
-                error: Some("Unhealthy".to_string()),
-            })
+            Ok(HealthStatus::Unhealthy(Some("Unhealthy".to_string())))
         }
     }
     
@@ -193,7 +181,7 @@ mod tests {
         let monitor = HealthMonitor::new(config);
 
         // Initially unhealthy
-        assert_eq!(monitor.check_health().await.unwrap(), HealthStatus::Unhealthy);
+        assert_eq!(monitor.check_health().await.unwrap(), HealthStatus::Unhealthy(Some("Unhealthy".to_string())));
 
         // Record success
         monitor.record_success(0, 100, 1000).await.unwrap();

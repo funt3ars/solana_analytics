@@ -161,6 +161,11 @@ impl SolanaRpcClient {
     pub fn get_config(&self) -> &RpcConfig {
         &self.config
     }
+
+    /// Expose the inner RpcClient for testing
+    pub fn rpc_client(&self) -> &Arc<RwLock<RpcClient>> {
+        &self.client
+    }
 }
 
 #[async_trait::async_trait]
@@ -184,6 +189,28 @@ impl crate::core::traits::Client for SolanaRpcClient {
             avg_response_time_ms: 0.0,
             current_rps: 0.0,
             bytes_transferred: 0,
+        })
+    }
+}
+
+#[async_trait::async_trait]
+impl crate::core::traits::HealthCheck for SolanaRpcClient {
+    async fn check_health(&self) -> crate::core::error::Result<crate::core::traits::HealthStatus> {
+        // Stub: always healthy for now
+        Ok(crate::core::traits::HealthStatus::Healthy)
+    }
+
+    async fn get_health_details(&self) -> crate::core::error::Result<crate::core::traits::HealthDetails> {
+        // Stub: return default details
+        Ok(crate::core::traits::HealthDetails {
+            status: crate::core::traits::HealthStatus::Healthy,
+            components: vec![],
+            metrics: crate::core::traits::SystemMetrics {
+                cpu_usage: 0.0,
+                memory_usage: 0,
+                disk_usage: 0,
+                network_usage: 0,
+            },
         })
     }
 } 

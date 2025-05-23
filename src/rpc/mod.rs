@@ -1,4 +1,5 @@
 use crate::core::error::Error;
+use crate::core::traits::{HealthCheck, HealthStatus};
 
 pub mod client;
 pub mod config;
@@ -24,13 +25,10 @@ mod tests {
     #[test]
     fn test_rpc_config_default() {
         let config = RpcConfig::default();
-        assert_eq!(config.retry_attempts, 3);
-        assert_eq!(config.retry_delay_ms, 1000);
-        assert_eq!(config.endpoint.requests_per_second, 10);
-        assert_eq!(
-            config.endpoint.url,
-            Url::parse("https://api.mainnet-beta.solana.com").unwrap()
-        );
+        assert_eq!(config.retry.max_retries, 3);
+        assert_eq!(config.retry.retry_delay_ms, 1000);
+        assert_eq!(config.endpoints[0].url, "http://localhost:8899");
+        assert_eq!(config.endpoints[0].weight, 1);
     }
 
     #[tokio::test]
@@ -50,7 +48,7 @@ mod tests {
         };
 
         let client = SolanaRpcClient::new(config).unwrap();
-        assert_eq!(client.check_health().await.unwrap(), HealthStatus::Unhealthy);
+        assert_eq!(client.check_health().await.unwrap(), HealthStatus::Unhealthy(None));
     }
     
     #[tokio::test]
@@ -76,11 +74,11 @@ mod tests {
         let rate_limiter = client.rate_limiter();
 
         // First request should succeed immediately
-        rate_limiter.wait_for_permit().await.unwrap();
+        rate_limiter.wait_for_permit().await;
 
         // Second request should be rate limited
         let start = std::time::Instant::now();
-        rate_limiter.wait_for_permit().await.unwrap();
+        rate_limiter.wait_for_permit().await;
         let duration = start.elapsed();
 
         // Should have waited at least 450ms (1 second / 2 requests)
@@ -112,7 +110,7 @@ mod tests {
         let health_monitor = client.health_monitor();
 
         // Initially unhealthy
-        assert_eq!(health_monitor.check_health().await.unwrap(), HealthStatus::Unhealthy);
+        assert_eq!(health_monitor.check_health().await.unwrap(), HealthStatus::Unhealthy(None));
 
         // Record success
         health_monitor.record_success(0, 100, 1000).await.unwrap();
