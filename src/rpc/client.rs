@@ -18,7 +18,6 @@ use std::fmt;
 use std::fmt::Debug;
 
 /// Client for interacting with Solana RPC endpoints
-#[derive(Debug)]
 pub struct SolanaRpcClient {
     /// Client configuration
     config: Arc<RpcConfig>,
@@ -34,6 +33,8 @@ pub struct SolanaRpcClient {
     current_endpoint_url: String,
 }
 
+/// Manual Debug implementation to skip the `client` field,
+/// as `solana_client::rpc_client::RpcClient` does not implement Debug.
 impl std::fmt::Debug for SolanaRpcClient {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("SolanaRpcClient")
@@ -269,5 +270,12 @@ mod tests {
             SolanaRpcClient::new(config),
             Err(RpcError::NoEnabledEndpoints)
         ));
+    }
+
+    #[test]
+    fn test_debug_impl() {
+        let config = RpcConfig::default();
+        let client = SolanaRpcClient::new(config).unwrap();
+        let _ = format!("{:?}", client); // Should not panic
     }
 } 
