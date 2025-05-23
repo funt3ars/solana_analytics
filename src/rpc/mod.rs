@@ -1,5 +1,5 @@
+// use crate::core::traits::{HealthCheck, HealthStatus};
 use crate::core::error::Error;
-use crate::core::traits::{HealthCheck, HealthStatus};
 
 pub mod client;
 pub mod config;
@@ -20,7 +20,6 @@ pub type Result<T> = std::result::Result<T, RpcClientError>;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use url::Url;
 
     #[test]
     fn test_rpc_config_default() {

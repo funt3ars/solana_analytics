@@ -4,7 +4,6 @@ use crate::rpc::error::RpcError;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tokio::time::{Duration, Instant};
-use chrono;
 
 /// Statistics for an endpoint
 #[derive(Debug, Clone)]

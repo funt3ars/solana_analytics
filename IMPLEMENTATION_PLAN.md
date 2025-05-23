@@ -2,8 +2,16 @@
 
 ## Current Version
 - Version: 0.1.0
-- Status: Research Phase
-- Last Updated: 2024-03-20
+- Status: Core library and tests build and pass; examples pending update
+- Last Updated: 2024-04-XX
+
+## Recent Progress (2024-04-XX)
+- Main library and all tests now build and pass.
+- `HealthStatus` refactored to an enum (`Healthy`, `Unhealthy`).
+- Trait implementations updated for new API.
+- Legacy Solana SDK error usage removed from tests.
+- Integration and unit tests migrated to best-practice structure.
+- Only the example code remains to be updated for the new API.
 
 ## Key Features
 1. Progressive Complexity
@@ -748,3 +756,7 @@ To ensure all public APIs are documented and generate browsable docs:
 
 ### Next Step
 - Implement and test model validation logic, or expand the indexer to wire up a basic protocol parser.
+
+## Next Steps
+- Update all example code in `examples/` to match the current API (field names, types, methods).
+- Continue with planned feature development and documentation review.

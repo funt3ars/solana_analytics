@@ -2,7 +2,6 @@ use solana_rpc_client::rpc::client::SolanaRpcClient;
 use solana_rpc_client::rpc::config::RpcConfig;
 use solana_rpc_client::rpc::error::RpcError;
 use solana_rpc_client::rpc::config::EndpointConfig;
-use url::Url;
 
 #[test]
 fn test_client_creation() {

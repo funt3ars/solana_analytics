@@ -3,7 +3,6 @@ use crate::rpc::error::RpcError;
 use governor::{Quota, RateLimiter as GovRateLimiter, state::NotKeyed, state::InMemoryState, clock::DefaultClock};
 use std::num::NonZeroU32;
 use std::sync::Arc;
-use std::time::Duration;
 
 /// Rate limiter for RPC requests
 #[derive(Debug, Clone)]
@@ -55,7 +54,6 @@ impl RpcRateLimiter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::time::Duration;
     use std::time::Instant;
     
     #[tokio::test]
