@@ -14,6 +14,8 @@ use crate::rpc::health::HealthMonitor;
 use tokio::sync::RwLock;
 use crate::rpc::error::RpcError;
 use std::time::Instant;
+use std::fmt;
+use std::fmt::Debug;
 
 /// Client for interacting with Solana RPC endpoints
 #[derive(Debug)]
@@ -25,6 +27,7 @@ pub struct SolanaRpcClient {
     /// Rate limiter for requests
     rate_limiter: RpcRateLimiter,
     /// Current RPC client
+    #[debug(skip)]
     client: Arc<RwLock<RpcClient>>,
     /// Store the current endpoint index for &str return
     current_endpoint_idx: usize,
