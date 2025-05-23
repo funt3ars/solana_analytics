@@ -130,7 +130,7 @@ impl SolanaRpcClient {
     pub async fn get_signature_status(
         &self,
         signature: &solana_sdk::signature::Signature,
-    ) -> std::result::Result<Option<solana_client::rpc_response::RpcSignatureResult>, RpcError> {
+    ) -> std::result::Result<Option<std::result::Result<(), solana_sdk::transaction::TransactionError>>, RpcError> {
         self.with_retry("get_signature_status", || {
             let client = self.client.blocking_read();
             client.get_signature_status(signature)
