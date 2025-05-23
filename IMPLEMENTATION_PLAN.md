@@ -47,33 +47,74 @@
 8. Keep code modular and maintainable
 9. Follow TDD best practices
 
-## Critical Path for MVP
-1. Core Infrastructure (Phase 1)
-   - RPC Client Infrastructure (1.1)
-   - Database Layer Setup (1.2)
-   - Core Data Models (1.3)
-
-2. Data Extraction (Phase 2)
-   - Transaction Fetching Engine (2.1)
-   - Program-Specific Parsers (2.2)
-   - Balance Tracking System (2.3)
-
-3. Basic Analytics (Phase 4)
-   - Transaction Metrics Calculator (4.1)
-   - Portfolio Analytics Engine (4.2)
-
-4. Price Integration (Phase 3)
-   - Price Feed System (3.1)
-   - Token Metadata Resolution (3.2)
-
-5. Real-Time Processing (Phase 6)
-   - Event-Driven Architecture (6.1)
-   - Background Processing System (6.2)
-
-6. API Access (Phase 7)
-   - REST API Development (7.1)
-
 ## Progress Tracking
+
+### Phase 0: Research and Documentation (REQUIRED BEFORE ANY IMPLEMENTATION)
+#### Project Analysis
+- [ ] Review current codebase structure
+  - Document existing architecture
+  - Map component dependencies
+  - Identify technical debt
+  - List current limitations
+- [ ] Document existing patterns and conventions
+  - Code organization patterns
+  - Error handling approaches
+  - Testing methodologies
+  - Documentation standards
+- [ ] Identify current dependencies and their purposes
+  - List all external crates
+  - Document version requirements
+  - Note feature flags in use
+  - Map dependency relationships
+- [ ] Map out current system interactions
+  - Document data flows
+  - Identify integration points
+  - Note performance bottlenecks
+  - List security considerations
+
+#### Technology Research
+- [ ] Research best practices for each component
+  - RPC client patterns
+  - Database access patterns
+  - Error handling strategies
+  - Testing methodologies
+- [ ] Document relevant Rust patterns and idioms
+  - Async/await patterns
+  - Error handling idioms
+  - Testing best practices
+  - Performance optimization techniques
+- [ ] Review similar open-source projects
+  - Analyze architecture decisions
+  - Document successful patterns
+  - Note failure points
+  - List lessons learned
+- [ ] Compile reference documentation
+  - Create technical specifications
+  - Document design decisions
+  - List implementation guidelines
+  - Note security considerations
+
+#### Requirements Documentation
+- [ ] Document specific requirements for each phase
+  - Functional requirements
+  - Non-functional requirements
+  - Performance requirements
+  - Security requirements
+- [ ] Create technical specifications
+  - API specifications
+  - Data models
+  - Error handling
+  - Testing requirements
+- [ ] Define success criteria
+  - Performance metrics
+  - Test coverage goals
+  - Documentation standards
+  - Security requirements
+- [ ] Set up documentation structure
+  - API documentation
+  - Architecture documentation
+  - Development guides
+  - Deployment guides
 
 ### Phase 1: Core Infrastructure Foundation
 #### RPC Client Infrastructure
@@ -242,17 +283,73 @@
 - [ ] Implement CI/CD pipeline
 - [ ] Add production considerations
 
+## Critical Path for MVP
+1. Core Infrastructure (Phase 1)
+   - RPC Client Infrastructure (1.1)
+   - Database Layer Setup (1.2)
+   - Core Data Models (1.3)
+
+2. Data Extraction (Phase 2)
+   - Transaction Fetching Engine (2.1)
+   - Program-Specific Parsers (2.2)
+   - Balance Tracking System (2.3)
+
+3. Basic Analytics (Phase 4)
+   - Transaction Metrics Calculator (4.1)
+   - Portfolio Analytics Engine (4.2)
+
+4. Price Integration (Phase 3)
+   - Price Feed System (3.1)
+   - Token Metadata Resolution (3.2)
+
+5. Real-Time Processing (Phase 6)
+   - Event-Driven Architecture (6.1)
+   - Background Processing System (6.2)
+
+6. API Access (Phase 7)
+   - REST API Development (7.1)
+
 ## Research Findings
-*This section will be updated as research progresses*
+*This section will be updated as research progresses, documenting:*
+- Technical decisions and rationale
+- Alternative approaches considered
+- Performance implications
+- Security considerations
+- Integration challenges
+- Testing strategies
+- Documentation requirements
 
 ## Implementation Decisions
-*This section will be updated as decisions are made*
+*This section will be updated as decisions are made, including:*
+- Architecture choices
+- Technology selections
+- Design patterns
+- Testing approaches
+- Documentation standards
+- Performance optimizations
+- Security measures
 
 ## Next Steps
-1. Begin Phase 1 research
-2. Set up documentation structure
-3. Review current codebase
-4. Document existing patterns
+1. Complete Phase 0 research
+   - Finish project analysis
+   - Complete technology research
+   - Document all requirements
+   - Set up documentation structure
+2. Review and validate findings
+   - Verify technical decisions
+   - Validate performance assumptions
+   - Check security implications
+   - Confirm testing strategies
+3. Document implementation plan
+   - Create detailed specifications
+   - Define success criteria
+   - Set up monitoring
+   - Plan testing approach
+4. Begin Phase 1 implementation
+   - Start with core infrastructure
+   - Follow research findings
+   - Implement incrementally
+   - Document progress
 
 ## Development Strategy
 1. Follow the sequence
@@ -295,4 +392,8 @@
 - Regular security audits
 - Performance benchmarking
 - Code quality checks
-- Documentation updates 
+- Documentation updates
+- Validate assumptions
+- Document research sources
+- Review findings regularly
+- Update based on new information 
