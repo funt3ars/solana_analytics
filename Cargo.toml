@@ -28,6 +28,8 @@ uuid = { version = "1.7", features = ["v4", "serde"] }
 tokio-retry = "0.3"
 governor = "0.6"
 config = "0.13"
+solana-transaction-status = "1.18.26"
+nonzero_ext = "0.3.0"
 
 [features]
 default = ["phase1"]
