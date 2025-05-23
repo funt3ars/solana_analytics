@@ -1,5 +1,4 @@
 use crate::core::error::Error;
-use crate::core::traits::HealthStatus;
 
 pub mod client;
 pub mod config;

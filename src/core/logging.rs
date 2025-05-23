@@ -1,13 +1,11 @@
 use std::{path::PathBuf, sync::Once};
-use tracing::{Level, Subscriber};
+use tracing::Level;
 use tracing_subscriber::{
-    fmt::{format::FmtSpan, time::UtcTime, writer::MakeWriterExt},
+    fmt::{format::FmtSpan, time::UtcTime},
     prelude::*,
     EnvFilter,
-    layer::Layer,
 };
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
-use std::sync::Arc;
 
 /// Configuration for logging
 #[derive(Debug, Clone)]

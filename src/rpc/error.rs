@@ -1,8 +1,5 @@
 use thiserror::Error;
 use solana_client::client_error::ClientError;
-use solana_sdk::transaction::TransactionError;
-use std::time::Duration;
-use std::fmt;
 
 #[derive(Error, Debug)]
 pub enum RpcError {

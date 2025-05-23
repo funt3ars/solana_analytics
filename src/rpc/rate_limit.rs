@@ -1,11 +1,8 @@
-use crate::core::error::{Error, Result};
 use crate::rpc::config::RateLimitConfig;
 use crate::rpc::error::RpcError;
 use governor::{Quota, RateLimiter as GovRateLimiter, state::NotKeyed, state::InMemoryState, clock::DefaultClock};
-use nonzero_ext::nonzero;
 use std::num::NonZeroU32;
 use std::sync::Arc;
-use std::time::Duration;
 
 /// Rate limiter for RPC requests
 #[derive(Debug, Clone)]

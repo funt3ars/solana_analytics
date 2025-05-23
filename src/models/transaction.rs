@@ -1,6 +1,5 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use serde_json::Value as JsonValue;
 
 /// Represents a Solana transaction with its metadata and instructions
 #[derive(Debug, Clone, Serialize, Deserialize)]

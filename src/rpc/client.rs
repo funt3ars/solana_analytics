@@ -1,21 +1,14 @@
-use crate::core::error::{Error, Result};
-use crate::core::traits::{Client, Config, HealthStatus};
-use async_trait::async_trait;
-use governor::Quota;
+use crate::core::traits::Client;
 use crate::rpc::rate_limit::RpcRateLimiter;
-use std::num::NonZeroU32;
 use std::sync::Arc;
 use std::time::Duration;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::commitment_config::CommitmentConfig;
-use url::Url;
-use crate::rpc::config::{RpcConfig, EndpointConfig};
+use crate::rpc::config::RpcConfig;
 use crate::rpc::health::HealthMonitor;
 use tokio::sync::RwLock;
 use crate::rpc::error::RpcError;
 use std::time::Instant;
-use std::fmt;
-use std::fmt::Debug;
 
 /// Client for interacting with Solana RPC endpoints
 pub struct SolanaRpcClient {

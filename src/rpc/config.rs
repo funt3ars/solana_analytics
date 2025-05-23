@@ -1,7 +1,6 @@
 use crate::core::traits::{Config, RetryConfig};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
-use url::Url;
 use validator::Validate;
 
 /// Configuration for a single RPC endpoint
