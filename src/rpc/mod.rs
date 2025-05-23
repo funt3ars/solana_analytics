@@ -13,7 +13,7 @@ pub use client::SolanaRpcClient;
 pub use config::{EndpointConfig, RpcConfig, RateLimitConfig};
 pub use error::RpcError;
 pub use health::{HealthMonitor, EndpointStats};
-pub use rate_limit::RateLimiter;
+pub use rate_limit::RpcRateLimiter;
 
 pub type Result<T> = std::result::Result<T, RpcClientError>;
 

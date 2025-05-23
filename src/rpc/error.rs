@@ -32,6 +32,12 @@ pub enum RpcError {
 
     #[error("Internal error: {0}")]
     Internal(String),
+
+    #[error("Connection error: {0}")]
+    ConnectionError(String),
+
+    #[error("Circuit breaker open: {0}")]
+    CircuitBreakerOpen(String),
 }
 
 impl RpcError {

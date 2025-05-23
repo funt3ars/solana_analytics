@@ -15,8 +15,8 @@ pub struct Transaction {
     pub fee: i64,
     /// The transaction status (e.g., "success", "failed")
     pub status: String,
-    /// The transaction instructions in JSON format
-    pub instructions_json: JsonValue,
+    /// The transaction instructions in JSON format (as a JSON string)
+    pub instructions_json: String,
     /// When this record was created
     pub created_at: DateTime<Utc>,
 }
@@ -29,7 +29,7 @@ impl Transaction {
         block_time: DateTime<Utc>,
         fee: i64,
         status: String,
-        instructions_json: JsonValue,
+        instructions_json: String,
     ) -> Self {
         Self {
             signature,
@@ -42,6 +42,11 @@ impl Transaction {
         }
     }
 
+    /// Helper to get instructions_json as serde_json::Value
+    pub fn instructions_json_value(&self) -> serde_json::Result<serde_json::Value> {
+        serde_json::from_str(&self.instructions_json)
+    }
+
     /// Converts a database row into a Transaction
     pub fn from_row(row: &tokio_postgres::Row) -> Self {
         Self {
@@ -50,7 +55,7 @@ impl Transaction {
             block_time: row.get("block_time"),
             fee: row.get("fee"),
             status: row.get("status"),
-            instructions_json: row.get("instructions_json"),
+            instructions_json: row.get::<_, String>("instructions_json"),
             created_at: row.get("created_at"),
         }
     }
@@ -69,7 +74,7 @@ mod tests {
             Utc::now(),
             1000,
             "success".to_string(),
-            json!({}),
+            json!({}).to_string(),
         );
 
         assert_eq!(transaction.signature, "test_sig");
@@ -86,7 +91,7 @@ mod tests {
             block_time: Utc::now(),
             fee: 1000,
             status: "success".to_string(),
-            instructions_json: json!({}),
+            instructions_json: json!({}).to_string(),
             created_at: Utc::now(),
         };
 

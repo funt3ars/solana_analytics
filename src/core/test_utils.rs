@@ -3,6 +3,7 @@ use tracing_subscriber::{EnvFilter, fmt::format::FmtSpan};
 
 use crate::core::config::Config;
 use crate::core::traits::{ClientMetrics, HealthStatus, HealthDetails, SystemMetrics};
+
 use solana_sdk::{
     pubkey::Pubkey,
     signature::Signature,
@@ -10,7 +11,6 @@ use solana_sdk::{
 };
 
 use chrono::Utc;
-use async_trait::async_trait;
 
 /// Initialize test logging
 pub fn init_test_logging() {
@@ -47,6 +47,7 @@ pub fn test_signature() -> Signature {
 /// Create test client metrics
 pub fn test_client_metrics() -> ClientMetrics {
     ClientMetrics {
+        
         successful_requests: 100,
         failed_requests: 0,
         avg_response_time_ms: 50.0,
@@ -73,17 +74,21 @@ pub fn test_health_details() -> HealthDetails {
     }
 }
 
-/// Stub for test_system_metrics if not already defined
-#[allow(dead_code)]
 pub fn test_system_metrics() -> SystemMetrics {
-    Default::default()
+    SystemMetrics {
+        cpu_usage: 0.0,
+        memory_usage: 0,
+        disk_usage: 0,
+        network_usage: 0,
+    }
 }
 
 #[cfg(test)]
 mod mock_client {
     use super::*;
     use mockall::mock;
-    use crate::core::traits::Client;
+    use crate::core::traits::{Client, Config};
+    use crate::core::error::Result;
     use async_trait::async_trait;
 
     mock! {
@@ -91,18 +96,16 @@ mod mock_client {
         pub MockClient {}
         #[async_trait::async_trait]
         impl Client for MockClient {
-            fn config(&self) -> &Config;
+            fn config(&self) -> &dyn Config;
             async fn is_healthy(&self) -> Result<bool>;
             fn current_endpoint(&self) -> &str;
             async fn get_metrics(&self) -> Result<ClientMetrics>;
         }
     }
 
-    /// Helper functions for creating mock implementations
     pub mod helpers {
         use super::*;
 
-        /// Create a mock client with default expectations
         pub fn create_mock_client() -> MockClient {
             let mut mock = MockClient::new();
             mock.expect_config()
@@ -112,7 +115,7 @@ mod mock_client {
             mock.expect_current_endpoint()
                 .returning(|| "http://localhost:8899");
             mock.expect_get_metrics()
-                .returning(|| Ok(test_client_metrics()));
+                .returning(|| Ok(super::test_client_metrics()));
             mock
         }
     }
@@ -157,5 +160,4 @@ mod tests {
         let metrics = mock.get_metrics().await.unwrap();
         assert_eq!(metrics.successful_requests, 100);
     }
-} 
 } 
