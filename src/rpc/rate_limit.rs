@@ -20,7 +20,7 @@ pub struct RpcRateLimiter {
 
 impl RpcRateLimiter {
     /// Create a new rate limiter
-    pub fn new(config: &RateLimitConfig) -> Result<Self, RpcError> {
+    pub fn new(config: &RateLimitConfig) -> std::result::Result<Self, RpcError> {
         let max_rps = NonZeroU32::new(config.max_rps)
             .ok_or_else(|| RpcError::InvalidConfig("max_rps must be greater than 0".to_string()))?;
         
