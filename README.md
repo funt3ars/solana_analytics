@@ -2,6 +2,51 @@
 
 A robust Solana analytics backend with PostgreSQL integration, built in Rust.
 
+## Architecture Overview
+
+### High-Level System Architecture
+```mermaid
+flowchart LR
+    A[Solana RPC Nodes] --> B(Core Indexer)
+    B --> C(Protocol Parsers)
+    C --> D(Analytics Engine)
+    D --> E[(Database)]
+    E --> F(API/Monitoring)
+```
+*Data flows from Solana RPC nodes through the indexer and protocol parsers, into the analytics engine and database, and is served via API and monitoring endpoints.*
+
+### Data Flow Diagram
+```mermaid
+flowchart TD
+    RPC[Solana RPC] --> Indexer[Core Indexer]
+    Indexer --> Parsers[Protocol Parsers]
+    Parsers --> DB[Database]
+    Analytics[Analytics Engine] --> DB
+    DB --> API[API Server]
+```
+*Shows the step-by-step flow from RPC ingestion to analytics and API serving.*
+
+### Module/Component Diagram
+```mermaid
+flowchart LR
+    Config[Config Loader] --> Indexer2[Core Indexer]
+    Indexer2 --> Health[Health Monitor]
+    Indexer2 --> Parsers2[Protocol Parsers]
+    Parsers2 --> Pool[Connection Pool]
+    Indexer2 --> Migrate[Migration Manager]
+```
+*Illustrates the main modules and their interactions within the system.*
+
+### Database Schema Overview
+```mermaid
+erDiagram
+    transactions ||--o{ token_accounts : references
+    transactions ||--o{ price_data : references
+    transactions ||--o{ protocol_interactions : references
+    transactions ||--o{ governance_votes : references
+```
+*Overview of the main database tables and their relationships.*
+
 ## Features
 
 - **Database Layer**
