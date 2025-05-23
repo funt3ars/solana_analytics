@@ -145,18 +145,18 @@ impl SolanaRpcClient {
         }).await
     }
 
-    async fn update_client(&self, endpoint_idx: usize) -> std::result::Result<(), RpcError> {
-        let endpoint = self.config.endpoints.get(endpoint_idx)
-            .ok_or_else(|| RpcError::InvalidEndpoint(endpoint_idx))?;
-            
-        let client = RpcClient::new_with_commitment(
-            endpoint.url.clone(),
-            CommitmentConfig::confirmed(),
-        );
-        
-        *self.client.write().await = client;
-        Ok(())
-    }
+    // async fn update_client(&self, endpoint_idx: usize) -> std::result::Result<(), RpcError> {
+    //     let endpoint = self.config.endpoints.get(endpoint_idx)
+    //         .ok_or_else(|| RpcError::InvalidEndpoint(endpoint_idx))?;
+    //         
+    //     let client = RpcClient::new_with_commitment(
+    //         endpoint.url.clone(),
+    //         CommitmentConfig::confirmed(),
+    //     );
+    //     
+    //     *self.client.write().await = client;
+    //     Ok(())
+    // }
 }
 
 #[async_trait::async_trait]
