@@ -50,21 +50,22 @@ impl std::fmt::Debug for SolanaRpcClient {
 impl SolanaRpcClient {
     /// Create a new Solana RPC client
     pub fn new(config: RpcConfig) -> std::result::Result<Self, RpcError> {
+        // Find the first enabled endpoint and clone its URL before moving config into Arc
+        let endpoint_url = config.endpoints.iter()
+            .find(|e| e.enabled)
+            .map(|e| e.url.clone())
+            .ok_or_else(|| RpcError::NoEnabledEndpoints)?;
+
         let config = Arc::new(config);
-        
+
         // Initialize health monitor
         let health_monitor = HealthMonitor::new(config.clone());
         
         // Initialize rate limiter
         let rate_limiter = RpcRateLimiter::new(&config.rate_limit)?;
         
-        // Initialize RPC client with first enabled endpoint
-        let endpoint = config.endpoints.iter()
-            .find(|e| e.enabled)
-            .ok_or_else(|| RpcError::NoEnabledEndpoints)?;
-            
         let client = RpcClient::new_with_commitment(
-            endpoint.url.clone(),
+            endpoint_url.clone(),
             CommitmentConfig::confirmed(),
         );
 
@@ -74,7 +75,7 @@ impl SolanaRpcClient {
             rate_limiter,
             client: Arc::new(RwLock::new(client)),
             current_endpoint_idx: 0,
-            current_endpoint_url: endpoint.url.clone(),
+            current_endpoint_url: endpoint_url,
         })
     }
     
