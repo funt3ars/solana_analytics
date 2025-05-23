@@ -2,8 +2,7 @@ use std::sync::Once;
 use tracing_subscriber::{EnvFilter, fmt::format::FmtSpan};
 
 use crate::core::config::Config;
-use crate::core::traits::{ClientMetrics, HealthStatus, HealthDetails};
-use mockall::mock;
+use crate::core::traits::{ClientMetrics, HealthStatus, HealthDetails, SystemMetrics};
 use solana_sdk::{
     pubkey::Pubkey,
     signature::Signature,
@@ -11,6 +10,7 @@ use solana_sdk::{
 };
 
 use chrono::Utc;
+use async_trait::async_trait;
 
 /// Initialize test logging
 pub fn init_test_logging() {
@@ -69,46 +69,59 @@ pub fn test_health_details() -> HealthDetails {
     HealthDetails {
         status: test_health_status(),
         components: Vec::new(),
-        metrics: test_client_metrics(),
+        metrics: test_system_metrics(),
     }
 }
 
-// Mock implementations for core traits
-mock! {
-    #[derive(Debug)]
-    MockClient {}
-    #[async_trait]
-    impl Client for MockClient {
-        fn config(&self) -> &Config;
-        async fn is_healthy(&self) -> Result<bool>;
-        fn current_endpoint(&self) -> &str;
-        async fn get_metrics(&self) -> Result<ClientMetrics>;
-    }
+/// Stub for test_system_metrics if not already defined
+#[allow(dead_code)]
+pub fn test_system_metrics() -> SystemMetrics {
+    Default::default()
 }
 
-/// Helper functions for creating mock implementations
-pub mod helpers {
+#[cfg(test)]
+mod mock_client {
     use super::*;
+    use mockall::mock;
+    use crate::core::traits::Client;
+    use async_trait::async_trait;
 
-    /// Create a mock client with default expectations
-    pub fn create_mock_client() -> MockClient {
-        let mut mock = MockClient::new();
-        mock.expect_config()
-            .returning(|| &Config::default());
-        mock.expect_is_healthy()
-            .returning(|| Ok(true));
-        mock.expect_current_endpoint()
-            .returning(|| "http://localhost:8899");
-        mock.expect_get_metrics()
-            .returning(|| Ok(test_client_metrics()));
-        mock
+    mock! {
+        #[derive(Debug)]
+        pub MockClient {}
+        #[async_trait::async_trait]
+        impl Client for MockClient {
+            fn config(&self) -> &Config;
+            async fn is_healthy(&self) -> Result<bool>;
+            fn current_endpoint(&self) -> &str;
+            async fn get_metrics(&self) -> Result<ClientMetrics>;
+        }
+    }
+
+    /// Helper functions for creating mock implementations
+    pub mod helpers {
+        use super::*;
+
+        /// Create a mock client with default expectations
+        pub fn create_mock_client() -> MockClient {
+            let mut mock = MockClient::new();
+            mock.expect_config()
+                .returning(|| &Config::default());
+            mock.expect_is_healthy()
+                .returning(|| Ok(true));
+            mock.expect_current_endpoint()
+                .returning(|| "http://localhost:8899");
+            mock.expect_get_metrics()
+                .returning(|| Ok(test_client_metrics()));
+            mock
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use helpers::*;
+    use mock_client::helpers::*;
 
     #[test]
     fn test_test_utils() {
@@ -144,4 +157,5 @@ mod tests {
         let metrics = mock.get_metrics().await.unwrap();
         assert_eq!(metrics.successful_requests, 100);
     }
+} 
 } 
