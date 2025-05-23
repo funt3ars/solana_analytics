@@ -84,7 +84,7 @@ impl SolanaRpcClient {
 
         while attempts < max_attempts {
             // Wait for rate limit permit
-            self.rate_limiter.wait_for_permit().await?;
+            self.rate_limiter.wait_for_permit().await;
 
             match f() {
                 Ok(result) => {
