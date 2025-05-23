@@ -2,6 +2,8 @@ use async_trait::async_trait;
 use std::fmt::Debug;
 use crate::core::error::Result;
 use std::time::Duration;
+use serde::{Serialize, Deserialize};
+use validator::Validate;
 
 /// Generic configuration trait for clients
 pub trait Config: Send + Sync + Debug {
@@ -16,7 +18,7 @@ pub trait Config: Send + Sync + Debug {
 }
 
 /// Retry configuration
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize, Validate)]
 pub struct RetryConfig {
     /// Maximum number of retry attempts
     pub max_retries: u32,
