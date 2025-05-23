@@ -83,13 +83,6 @@ impl SolanaRpcClient {
         let start_time = Instant::now();
 
         while attempts < max_attempts {
-            // Check circuit breaker
-            if self.health_monitor.is_circuit_breaker_open().await {
-                return Err(RpcError::CircuitBreakerOpen(
-                    format!("Circuit breaker open after {} attempts", attempts)
-                ));
-            }
-
             // Wait for rate limit permit
             self.rate_limiter.wait_for_permit().await?;
 
@@ -119,14 +112,7 @@ impl SolanaRpcClient {
             }
         }
 
-        Err(RpcError::RetryFailed {
-            attempts,
-            error: Box::new(
-                last_error
-                    .unwrap_or_else(|| RpcError::Internal("Unknown error".to_string()))
-                    .with_context(format!("{} failed after {} attempts", operation, attempts))
-            ),
-        })
+        Err(last_error.unwrap_or_else(|| RpcError::Internal(format!("{} failed after {} attempts", operation, attempts))))
     }
 
     pub async fn get_block(&self, slot: u64) -> std::result::Result<solana_transaction_status::EncodedConfirmedBlock, RpcError> {
