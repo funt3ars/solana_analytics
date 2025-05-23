@@ -75,12 +75,18 @@ impl Default for RpcConfig {
             request_timeout_ms: 5000,
             retry: RetryConfig {
                 max_retries: 3,
-                retry_delay_ms: 100,
+                retry_delay_ms: 1000,
             },
-            rate_limit: RateLimitConfig {
-                max_rps: 100,
-                burst_size: 10,
-            },
+            rate_limit: RateLimitConfig::default(),
+        }
+    }
+}
+
+impl Default for RateLimitConfig {
+    fn default() -> Self {
+        Self {
+            max_rps: 100,
+            burst_size: 10,
         }
     }
 }
@@ -96,7 +102,7 @@ mod tests {
         assert_eq!(config.max_concurrent_requests, 10);
         assert_eq!(config.request_timeout_ms, 5000);
         assert_eq!(config.retry.max_retries, 3);
-        assert_eq!(config.retry.retry_delay_ms, 100);
+        assert_eq!(config.retry.retry_delay_ms, 1000);
         assert_eq!(config.rate_limit.max_rps, 100);
         assert_eq!(config.rate_limit.burst_size, 10);
     }

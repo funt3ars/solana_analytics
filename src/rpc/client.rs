@@ -9,6 +9,8 @@ use crate::rpc::health::HealthMonitor;
 use tokio::sync::RwLock;
 use crate::rpc::error::RpcError;
 use std::time::Instant;
+use url::Url;
+use crate::rpc::config::EndpointConfig;
 
 /// Client for interacting with Solana RPC endpoints
 pub struct SolanaRpcClient {
@@ -157,6 +159,11 @@ impl SolanaRpcClient {
     //     *self.client.write().await = client;
     //     Ok(())
     // }
+
+    /// Expose the config for testing
+    pub fn get_config(&self) -> &RpcConfig {
+        &self.config
+    }
 }
 
 #[async_trait::async_trait]
