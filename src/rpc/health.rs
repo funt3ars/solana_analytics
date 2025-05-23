@@ -4,6 +4,7 @@ use crate::rpc::error::RpcError;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tokio::time::{Duration, Instant};
+use chrono;
 
 /// Statistics for an endpoint
 #[derive(Debug, Clone)]
@@ -39,6 +40,7 @@ impl Default for EndpointStats {
 }
 
 /// Health monitor for RPC endpoints
+#[derive(Debug)]
 pub struct HealthMonitor {
     /// Client configuration
     config: Arc<RpcConfig>,
@@ -73,7 +75,11 @@ impl HealthMonitor {
             .unwrap_or(false);
 
         if is_healthy {
-            Ok(HealthStatus::Healthy)
+            Ok(HealthStatus {
+                is_healthy: true,
+                last_check: chrono::Utc::now(),
+                error: None,
+            })
         } else {
             // Try to find a healthy endpoint
             for (idx, stats) in stats.iter().enumerate() {
@@ -82,10 +88,18 @@ impl HealthMonitor {
                     .unwrap_or(false)
                 {
                     *self.current_endpoint.write().await = idx;
-                    return Ok(HealthStatus::Healthy);
+                    return Ok(HealthStatus {
+                        is_healthy: true,
+                        last_check: chrono::Utc::now(),
+                        error: None,
+                    });
                 }
             }
-            Ok(HealthStatus::Unhealthy)
+            Ok(HealthStatus {
+                is_healthy: false,
+                last_check: chrono::Utc::now(),
+                error: Some("Unhealthy".to_string()),
+            })
         }
     }
     
