@@ -26,13 +26,24 @@ pub struct SolanaRpcClient {
     health_monitor: HealthMonitor,
     /// Rate limiter for requests
     rate_limiter: RpcRateLimiter,
-    /// Current RPC client
-    #[debug(skip)]
+    /// Current RPC client (not Debug)
     client: Arc<RwLock<RpcClient>>,
     /// Store the current endpoint index for &str return
     current_endpoint_idx: usize,
     /// Store the endpoint URL as a String for &str return
     current_endpoint_url: String,
+}
+
+impl std::fmt::Debug for SolanaRpcClient {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SolanaRpcClient")
+            .field("config", &self.config)
+            .field("health_monitor", &self.health_monitor)
+            .field("rate_limiter", &self.rate_limiter)
+            .field("current_endpoint_idx", &self.current_endpoint_idx)
+            .field("current_endpoint_url", &self.current_endpoint_url)
+            .finish()
+    }
 }
 
 impl SolanaRpcClient {
