@@ -35,6 +35,9 @@ pub enum RpcError {
 
     #[error("Circuit breaker open: {0}")]
     CircuitBreakerOpen(String),
+
+    #[error("All endpoints failed: {0}")]
+    AllEndpointsFailed(String),
 }
 
 impl RpcError {

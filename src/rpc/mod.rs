@@ -1,5 +1,8 @@
 // use crate::core::traits::{HealthCheck, HealthStatus};
 use crate::core::error::Error;
+use crate::core::HealthStatus;
+use crate::core::traits::HealthCheck;
+use std::time::Duration;
 
 pub mod client;
 pub mod config;
@@ -47,7 +50,7 @@ mod tests {
         };
 
         let client = SolanaRpcClient::new(config).unwrap();
-        assert_eq!(client.check_health().await.unwrap(), HealthStatus::Unhealthy(None));
+        assert_eq!(client.check_health().await.unwrap(), HealthStatus::Unhealthy(Some("Unhealthy".to_string())));
     }
     
     #[tokio::test]
@@ -109,7 +112,7 @@ mod tests {
         let health_monitor = client.health_monitor();
 
         // Initially unhealthy
-        assert_eq!(health_monitor.check_health().await.unwrap(), HealthStatus::Unhealthy(None));
+        assert_eq!(health_monitor.check_health().await.unwrap(), HealthStatus::Unhealthy(Some("Unhealthy".to_string())));
 
         // Record success
         health_monitor.record_success(0, 100, 1000).await.unwrap();

@@ -139,6 +139,28 @@ impl HealthMonitor {
         *current = (*current + 1) % self.config.endpoints.len();
         Ok(())
     }
+
+    /// Returns the index of the next healthy endpoint, or an error if none are healthy.
+    pub async fn next_healthy_endpoint(&self) -> Result<usize, RpcError> {
+        let stats = self.stats.read().await;
+        let current_idx = *self.current_endpoint.read().await;
+        let now = Instant::now();
+        let len = stats.len();
+        // Start after the current index and wrap around
+        for offset in 1..=len {
+            let idx = (current_idx + offset) % len;
+            let endpoint_stats = &stats[idx];
+            let is_healthy = endpoint_stats.last_success
+                .map(|last| now.duration_since(last) < Duration::from_secs(30))
+                .unwrap_or(false);
+            if is_healthy {
+                // Update the current endpoint
+                *self.current_endpoint.write().await = idx;
+                return Ok(idx);
+            }
+        }
+        Err(RpcError::NoEnabledEndpoints)
+    }
 }
 
 #[cfg(test)]

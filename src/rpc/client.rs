@@ -81,14 +81,34 @@ impl SolanaRpcClient {
         &self.rate_limiter
     }
 
-    async fn with_retry<F, T>(&self, operation: &str, f: F) -> std::result::Result<T, RpcError>
+    /// Switch to the next healthy endpoint and update the client.
+    async fn switch_to_next_healthy_endpoint(&self) -> Result<(), RpcError> {
+        // Get the next healthy endpoint index from the health monitor
+        let next_idx = self.health_monitor.next_healthy_endpoint().await?;
+        let endpoint = self.config.endpoints.get(next_idx)
+            .ok_or_else(|| RpcError::InvalidEndpoint(next_idx))?;
+        let url = endpoint.url.clone();
+        // Update the client to use the new endpoint
+        let new_client = RpcClient::new_with_commitment(url.clone(), CommitmentConfig::confirmed());
+        *self.client.write().await = new_client;
+        // Update current endpoint tracking
+        // (Assume these are atomic or only used for display)
+        // If not, wrap in a Mutex or RwLock as needed
+        // self.current_endpoint_idx = next_idx;
+        // self.current_endpoint_url = url;
+        tracing::info!("Switched to endpoint {}: {}", next_idx, url);
+        Ok(())
+    }
+
+    async fn with_retry<F, T>(&self, operation: &str, mut f: F) -> std::result::Result<T, RpcError>
     where
-        F: Fn() -> std::result::Result<T, RpcError>,
+        F: FnMut() -> std::result::Result<T, RpcError>,
     {
         let mut attempts = 0;
         let max_attempts = self.config.retry.max_retries;
         let mut last_error = None;
         let start_time = Instant::now();
+        let mut endpoint_switches = 0;
 
         while attempts < max_attempts {
             // Wait for rate limit permit
@@ -111,10 +131,18 @@ impl SolanaRpcClient {
                     }
                     last_error = Some(e);
                     attempts += 1;
+                    // Try to switch to the next healthy endpoint
+                    if let Err(switch_err) = self.switch_to_next_healthy_endpoint().await {
+                        tracing::error!("All endpoints failed: {}", switch_err);
+                        return Err(RpcError::AllEndpointsFailed(format!("{} failed after {} attempts, all endpoints unhealthy", operation, attempts)));
+                    } else {
+                        endpoint_switches += 1;
+                    }
                     // Calculate backoff duration
                     let backoff = Duration::from_millis(
                         self.config.retry.retry_delay_ms * 2u64.pow(attempts as u32)
                     );
+                    tracing::warn!("Retrying {} (attempt {}), switching endpoint, backoff {:?}", operation, attempts, backoff);
                     tokio::time::sleep(backoff).await;
                 }
             }
@@ -196,8 +224,11 @@ impl crate::core::traits::Client for SolanaRpcClient {
 #[async_trait::async_trait]
 impl crate::core::traits::HealthCheck for SolanaRpcClient {
     async fn check_health(&self) -> crate::core::error::Result<crate::core::traits::HealthStatus> {
-        // Stub: always healthy for now
-        Ok(crate::core::traits::HealthStatus::Healthy)
+        // Delegate to the health monitor
+        self.health_monitor
+            .check_health()
+            .await
+            .map_err(|e| crate::core::error::Error::config(e.to_string()))
     }
 
     async fn get_health_details(&self) -> crate::core::error::Result<crate::core::traits::HealthDetails> {

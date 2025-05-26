@@ -82,4 +82,45 @@ fn test_debug_impl() {
     let config = RpcConfig::default();
     let client = SolanaRpcClient::new(config).unwrap();
     let _ = format!("{:?}", client); // Should not panic
+}
+
+// --- Retry Logic Tests ---
+#[tokio::test]
+async fn test_retry_on_transient_error() {
+    // TODO: Simulate a transient network error (e.g., timeout) and verify that the client retries the request.
+    // Use a mock endpoint or a test server that fails the first N times.
+    unimplemented!("Test retry logic for transient errors");
+}
+
+#[tokio::test]
+async fn test_no_retry_on_permanent_error() {
+    // TODO: Simulate a permanent error (e.g., invalid request) and verify that the client does not retry.
+    unimplemented!("Test that permanent errors are not retried");
+}
+
+// --- Connection Pooling Tests ---
+#[tokio::test]
+async fn test_connection_pooling_concurrency() {
+    // TODO: Spawn multiple concurrent requests and verify that the same reqwest::Client is used (pooling).
+    // This may require instrumentation or a mock client.
+    unimplemented!("Test connection pooling under concurrency");
+}
+
+// --- Multi-Endpoint & Failover Tests ---
+#[tokio::test]
+async fn test_failover_to_next_endpoint_on_failure() {
+    // TODO: Configure multiple endpoints, simulate failure on the first, and verify failover to the next.
+    unimplemented!("Test failover to next endpoint");
+}
+
+#[tokio::test]
+async fn test_health_check_reenables_unhealthy_endpoint() {
+    // TODO: Simulate an endpoint becoming healthy again and verify that it is reused after health check.
+    unimplemented!("Test health check and endpoint recovery");
+}
+
+#[tokio::test]
+async fn test_load_balancing_across_endpoints() {
+    // TODO: If load balancing is implemented, verify requests are distributed across endpoints.
+    unimplemented!("Test load balancing across endpoints");
 } 

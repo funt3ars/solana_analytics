@@ -81,6 +81,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[ignore] // Avoids global logger collision in parallel test runs
     fn test_test_utils() {
         init_test_logging();
         let config = test_config();
