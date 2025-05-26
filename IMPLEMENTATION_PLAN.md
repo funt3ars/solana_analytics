@@ -5,7 +5,7 @@
 - Status: Core library and tests build and pass; examples pending update
 - Last Updated: 2024-04-XX
 
-## Recent Progress (2024-05-26)
+## Recent Progress (2025-05-26)
 - Phase 1 (Core Infrastructure Foundation) completed: all core library and tests build and pass.
 - Multi-endpoint RPC client, retry logic, connection pooling, rate limiting, health monitoring, and configuration system implemented and tested.
 - Logging tests are marked as `#[ignore]` due to global logger initialization limitations in Rust; run manually if needed.
@@ -183,8 +183,8 @@
 
 ### Phase 2: On-Chain Data Extraction
 #### Transaction Fetching Engine
-- [ ] Create `TransactionFetcher` struct
-- [ ] Implement pagination handling
+- [x] Create `TransactionFetcher` struct
+- [x] Implement pagination handling
 - [ ] Add parallel processing
 - [ ] Add progress tracking
 - [ ] Implement checkpointing
@@ -773,3 +773,11 @@ To ensure all public APIs are documented and generate browsable docs:
 ## Next Steps
 - Update all example code in `examples/` to match the current API (field names, types, methods).
 - Continue with planned feature development and documentation review.
+
+---
+**Phase 2 Progress Update (2025-05-26):**
+- `TransactionFetcher` struct and pagination logic implemented and tested.
+- Tests updated to mock full transaction fetches per signature.
+- Removed `cargo-audit` from dependencies to resolve `zeroize` version conflict with Solana stack.
+- All core and fetcher tests pass; integration test failures are unrelated (async blocking or not implemented) and documented.
+- Next: Expand `TransactionFetcher` features (progress tracking, checkpointing, error handling) or address integration test failures.
