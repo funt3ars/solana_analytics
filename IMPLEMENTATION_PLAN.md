@@ -775,9 +775,8 @@ To ensure all public APIs are documented and generate browsable docs:
 - Continue with planned feature development and documentation review.
 
 ---
-**Phase 2 Progress Update (2025-05-26):**
-- `TransactionFetcher` struct and pagination logic implemented and tested.
-- Tests updated to mock full transaction fetches per signature.
-- Removed `cargo-audit` from dependencies to resolve `zeroize` version conflict with Solana stack.
-- All core and fetcher tests pass; integration test failures are unrelated (async blocking or not implemented) and documented.
-- Next: Expand `TransactionFetcher` features (progress tracking, checkpointing, error handling) or address integration test failures.
+**Phase 2 Progress Update (2025-05-26, continued):**
+- Refactored `EndpointConfig.url` to `String` for compatibility with `validator` 0.20 custom validation.
+- Updated custom URL validator to parse and check scheme from string.
+- All config and validation tests pass after migration.
+- Integration test failures remain unrelated; next step is to update integration tests for new config structure.
