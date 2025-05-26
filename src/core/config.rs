@@ -7,8 +7,9 @@ use validator::{Validate, ValidationError};
 #[derive(Debug, Clone, Serialize, Deserialize, Validate)]
 pub struct EndpointConfig {
     /// RPC endpoint URL
-    #[validate(custom = "validate_url")]
-    pub url: Url,
+    #[validate(url)]
+    #[validate(custom(function = "validate_url"))]
+    pub url: String,
     
     /// Maximum requests per second
     #[validate(range(min = 1))]
@@ -22,16 +23,21 @@ pub struct EndpointConfig {
     pub weight: u32,
 }
 
-fn validate_url(url: &Url) -> Result<(), ValidationError> {
-    if url.scheme() != "http" && url.scheme() != "https" {
-        return Err(ValidationError::new("invalid_scheme"));
+fn validate_url(url: &str) -> Result<(), ValidationError> {
+    match Url::parse(url) {
+        Ok(parsed) => {
+            if parsed.scheme() != "http" && parsed.scheme() != "https" {
+                return Err(ValidationError::new("invalid_scheme"));
+            }
+            Ok(())
+        }
+        Err(_) => Err(ValidationError::new("invalid_url")),
     }
-    Ok(())
 }
 
 impl EndpointConfig {
     /// Create a new endpoint configuration
-    pub fn new(url: Url, requests_per_second: u32, timeout_ms: u64) -> Self {
+    pub fn new(url: String, requests_per_second: u32, timeout_ms: u64) -> Self {
         Self {
             url,
             requests_per_second,
@@ -53,7 +59,7 @@ pub struct Config {
     pub max_concurrent_requests: usize,
     
     /// Retry configuration
-    #[validate]
+    #[validate(nested)]
     pub retry_config: RetryConfig,
 
     /// Connection pool size
@@ -171,7 +177,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             endpoints: vec![EndpointConfig::new(
-                Url::parse("https://api.mainnet-beta.solana.com").unwrap(),
+                "https://api.mainnet-beta.solana.com".to_string(),
                 100,
                 10000,
             )],
@@ -188,6 +194,7 @@ impl Default for Config {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use validator::Validate;
 
     #[test]
     fn test_config_default() {
@@ -215,7 +222,7 @@ mod tests {
     #[test]
     fn test_endpoint_config_validation() {
         let config = EndpointConfig {
-            url: Url::parse("https://api.mainnet-beta.solana.com").unwrap(),
+            url: "https://api.mainnet-beta.solana.com".to_string(),
             requests_per_second: 100,
             timeout_ms: 10000,
             weight: 1,
@@ -223,7 +230,7 @@ mod tests {
         assert!(config.validate().is_ok());
 
         let config = EndpointConfig {
-            url: Url::parse("ftp://example.com").unwrap(),
+            url: "ftp://example.com".to_string(),
             requests_per_second: 0,
             timeout_ms: 0,
             weight: 1,
