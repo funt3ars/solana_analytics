@@ -8,6 +8,23 @@ use crate::rpc::health::HealthMonitor;
 use tokio::sync::RwLock;
 use crate::rpc::error::RpcError;
 use std::time::Instant;
+use url;
+
+#[cfg_attr(test, mockall::automock)]
+#[async_trait::async_trait]
+pub trait RpcClientTrait: Send + Sync {
+    async fn get_signatures_for_address(
+        &self,
+        address: &solana_sdk::pubkey::Pubkey,
+        before: Option<String>,
+        limit: usize,
+    ) -> Result<Vec<String>, crate::rpc::error::RpcError>;
+
+    async fn get_transaction(
+        &self,
+        signature: &str,
+    ) -> Result<crate::models::transaction::Transaction, crate::rpc::error::RpcError>;
+}
 
 /// Client for interacting with Solana RPC endpoints
 pub struct SolanaRpcClient {
@@ -42,12 +59,20 @@ impl std::fmt::Debug for SolanaRpcClient {
 impl SolanaRpcClient {
     /// Create a new Solana RPC client
     pub fn new(config: RpcConfig) -> std::result::Result<Self, RpcError> {
+        // Validate max_concurrent_requests
+        if config.max_concurrent_requests < 1 {
+            return Err(RpcError::InvalidConfig("max_concurrent_requests must be >= 1".to_string()));
+        }
         // Find the first enabled endpoint and clone its URL before moving config into Arc
         let endpoint_url = config.endpoints.iter()
             .find(|e| e.enabled)
             .map(|e| e.url.clone())
             .ok_or_else(|| RpcError::NoEnabledEndpoints)?;
-
+        // Validate endpoint URL format (must be valid http(s) URL)
+        match url::Url::parse(&endpoint_url) {
+            Ok(parsed) if parsed.scheme() == "http" || parsed.scheme() == "https" => {},
+            _ => return Err(RpcError::InvalidConfig("Invalid endpoint URL: must be http(s)".to_string())),
+        }
         let config = Arc::new(config);
 
         // Initialize health monitor
@@ -193,6 +218,13 @@ impl SolanaRpcClient {
     /// Expose the inner RpcClient for testing
     pub fn rpc_client(&self) -> &Arc<RwLock<RpcClient>> {
         &self.client
+    }
+
+    /// Minimal async passthrough for rate limiter testing only.
+    /// NOTE: This is for integration test purposes and should be replaced with a more realistic method later.
+    pub async fn async_ping(&self) -> std::result::Result<(), RpcError> {
+        self.rate_limiter.wait_for_permit().await;
+        Ok(())
     }
 }
 

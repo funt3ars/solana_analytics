@@ -776,7 +776,6 @@ To ensure all public APIs are documented and generate browsable docs:
 
 ---
 **Phase 2 Progress Update (2025-05-26, continued):**
-- Refactored `EndpointConfig.url` to `String` for compatibility with `validator` 0.20 custom validation.
-- Updated custom URL validator to parse and check scheme from string.
-- All config and validation tests pass after migration.
-- Integration test failures remain unrelated; next step is to update integration tests for new config structure.
+- Added a minimal `async_ping` method to `SolanaRpcClient` for integration testing of the rate limiter.
+- Refactored the rate limiting integration test to use `async_ping`, ensuring the test exercises the actual middleware.
+- TODO: Replace `async_ping` with a more realistic async client method in future iterations for more comprehensive integration testing.

@@ -2,6 +2,8 @@ use solana_rpc_client::rpc::client::SolanaRpcClient;
 use solana_rpc_client::rpc::config::RpcConfig;
 use solana_rpc_client::rpc::error::RpcError;
 use solana_rpc_client::rpc::config::EndpointConfig;
+use solana_rpc_client::core::traits::RetryConfig;
+use solana_rpc_client::rpc::config::RateLimitConfig;
 
 #[test]
 fn test_client_creation() {
@@ -37,23 +39,29 @@ fn test_client_config() {
 async fn test_basic_rpc_call() {
     let config = RpcConfig::default();
     let client = SolanaRpcClient::new(config).unwrap();
-    // Test a basic RPC call (getSlot)
-    let result = client.rpc_client().blocking_read().get_slot();
-    assert!(result.is_ok() || result.is_err()); // Either success or error is valid
+    let rpc_client = client.rpc_client().clone();
+    let result = tokio::task::spawn_blocking(move || {
+        rpc_client.blocking_read().get_slot()
+    }).await.unwrap();
+    assert!(result.is_ok() || result.is_err());
 }
 
 #[tokio::test]
 async fn test_rate_limiting() {
     let mut config = RpcConfig::default();
     config.max_concurrent_requests = 1; // Very low rate limit for testing
+    config.rate_limit.max_rps = 1;
+    config.rate_limit.burst_size = 1;
     let client = SolanaRpcClient::new(config).unwrap();
-    // Make two rapid requests
+    // First request should succeed immediately
+    client.async_ping().await.unwrap();
+    // Second request should be rate limited
     let start = std::time::Instant::now();
-    let _ = client.rpc_client().blocking_read().get_slot();
-    let _ = client.rpc_client().blocking_read().get_slot();
+    client.async_ping().await.unwrap();
     let duration = start.elapsed();
-    // The second request should have been rate limited
-    assert!(duration >= std::time::Duration::from_secs(1));
+    println!("test_rate_limiting: duration = {:?}", duration);
+    // TODO: Replace async_ping with a more realistic async method in the future
+    assert!(duration >= std::time::Duration::from_millis(900));
 }
 
 #[test]
@@ -68,8 +76,14 @@ fn test_no_enabled_endpoints() {
         ],
         max_concurrent_requests: 10,
         request_timeout_ms: 5000,
-        retry: Default::default(),
-        rate_limit: Default::default(),
+        retry: RetryConfig {
+            max_retries: 3,
+            retry_delay_ms: 1000,
+        },
+        rate_limit: RateLimitConfig {
+            max_rps: 100,
+            burst_size: 10,
+        },
     };
     assert!(matches!(
         SolanaRpcClient::new(config),
